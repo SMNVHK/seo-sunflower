@@ -47,11 +47,18 @@ const KeywordTracker: React.FC = () => {
   const { keywords, filter, sort, selectedKeyword } = useSelector((state: RootState) => state.keywords);
   const [newKeyword, setNewKeyword] = useState('');
 
-  const { data, isLoading, isError, error } = useQuery(['keywords'], fetchKeywords);
-  const { data: relatedKeywords } = useQuery(['relatedKeywords', selectedKeyword], () => fetchRelatedKeywords(selectedKeyword), {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['keywords'],
+    queryFn: fetchKeywords,
+  });
+  const { data: relatedKeywords } = useQuery({
+    queryKey: ['relatedKeywords', selectedKeyword],
+    queryFn: () => fetchRelatedKeywords(selectedKeyword),
     enabled: !!selectedKeyword,
   });
-  const { data: serpPreview } = useQuery(['serpPreview', selectedKeyword], () => fetchSerpPreview(selectedKeyword), {
+  const { data: serpPreview } = useQuery({
+    queryKey: ['serpPreview', selectedKeyword],
+    queryFn: () => fetchSerpPreview(selectedKeyword),
     enabled: !!selectedKeyword,
   });
 
