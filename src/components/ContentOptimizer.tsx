@@ -53,17 +53,17 @@ const ContentOptimizer: React.FC = () => {
     debouncedSetContent(content);
   }, [content, debouncedSetContent]);
 
-  const { data: analysisData, isLoading: isAnalysisLoading, isError: isAnalysisError, error: analysisError } = useQuery(
-    ['contentAnalysis', debouncedContent],
-    () => analyzeContent(debouncedContent),
-    { enabled: debouncedContent.length > 0 }
-  );
+  const { data: analysisData, isLoading: isAnalysisLoading, isError: isAnalysisError, error: analysisError } = useQuery({
+    queryKey: ['contentAnalysis', debouncedContent],
+    queryFn: () => analyzeContent(debouncedContent),
+    enabled: debouncedContent.length > 0
+  });
 
-  const { data: serpData, isLoading: isSerpLoading, isError: isSerpError, error: serpError } = useQuery(
-    ['serpPreview', debouncedContent],
-    () => getSerpPreview(debouncedContent),
-    { enabled: debouncedContent.length > 0 }
-  );
+  const { data: serpData, isLoading: isSerpLoading, isError: isSerpError, error: serpError } = useQuery({
+    queryKey: ['serpPreview', debouncedContent],
+    queryFn: () => getSerpPreview(debouncedContent),
+    enabled: debouncedContent.length > 0
+  });
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
