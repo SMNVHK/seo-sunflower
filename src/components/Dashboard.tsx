@@ -1,67 +1,99 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { RootState } from '../store';
+import { removeAlert, removeTask } from '../store/seoSlice';
 
-const data = [
-  { name: 'Jan', traffic: 4000, position: 24 },
-  { name: 'Feb', traffic: 3000, position: 13 },
-  { name: 'Mar', traffic: 2000, position: 9 },
-  { name: 'Apr', traffic: 2780, position: 3 },
-  { name: 'May', traffic: 1890, position: 4 },
-  { name: 'Jun', traffic: 2390, position: 3 },
-  { name: 'Jul', traffic: 3490, position: 2 },
-];
+const MetricCard: React.FC<{ title: string; value: number; change: number }> = ({ title, value, change }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+      <div className={`text-sm ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {change >= 0 ? '↑' : '↓'} {Math.abs(change)}%
+      </div>
+    </CardContent>
+  </Card>
+);
 
 const Dashboard: React.FC = () => {
+  const dispatch = useDispatch();
+  const { organicTraffic, averagePosition, clickThroughRate, keywordsRanking, trendData, alerts, tasks } = useSelector((state: RootState) => state.seo);
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-semibold mb-2">Organic Traffic</h3>
-          <p className="text-3xl font-bold">15,234</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-semibold mb-2">Average Position</h3>
-          <p className="text-3xl font-bold">12.5</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-semibold mb-2">Keywords Ranking</h3>
-          <p className="text-3xl font-bold">1,250</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard title="Organic Traffic" value={organicTraffic.value} change={organicTraffic.change} />
+        <MetricCard title="Average Position" value={averagePosition.value} change={averagePosition.change} />
+        <MetricCard title="Click-Through Rate" value={clickThroughRate.value} change={clickThroughRate.change} />
+        <MetricCard title="Keywords Ranking" value={keywordsRanking.value} change={keywordsRanking.change} />
       </div>
-      
-      <div className="bg-white p-4 rounded shadow">
-        <h3 className="text-lg font-semibold mb-4">SEO Performance Trends</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
-            <Legend />
-            <Line yAxisId="left" type="monotone" dataKey="traffic" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line yAxisId="right" type="monotone" dataKey="position" stroke="#82ca9d" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      
-      <div className="bg-white p-4 rounded shadow">
-        <h3 className="text-lg font-semibold mb-4">Priority SEO Tasks</h3>
-        <ul className="space-y-2">
-          <li className="flex items-center">
-            <span className="w-4 h-4 bg-red-500 rounded-full mr-2"></span>
-            <span>Optimize meta descriptions for top 10 pages</span>
-          </li>
-          <li className="flex items-center">
-            <span className="w-4 h-4 bg-yellow-500 rounded-full mr-2"></span>
-            <span>Improve page load speed for mobile devices</span>
-          </li>
-          <li className="flex items-center">
-            <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
-            <span>Update internal linking structure</span>
-          </li>
-        </ul>
-      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>SEO Trends</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
+              <Tooltip />
+              <Legend />
+              <Line yAxisId="left" type="monotone" dataKey="organicTraffic" stroke="#8884d8" activeDot={{ r: 8 }} />
+              <Line yAxisId="right" type="monotone" dataKey="averagePosition" stroke="#82ca9d" />
+              <Line yAxisId="left" type="monotone" dataKey="clickThroughRate" stroke="#ffc658" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Alerts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {alerts.map((alert) => (
+            <Alert key={alert.id} variant={alert.type === 'error' ? 'destructive' : alert.type === 'warning' ? 'default' : 'info'}>
+              <AlertTitle>{alert.type.charAt(0).toUpperCase() + alert.type.slice(1)}</AlertTitle>
+              <AlertDescription>{alert.message}</AlertDescription>
+              <Button variant="outline" size="sm" onClick={() => dispatch(removeAlert(alert.id))}>Dismiss</Button>
+            </Alert>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Priority Tasks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {tasks.map((task) => (
+              <li key={task.id} className="flex items-center justify-between">
+                <span>{task.task}</span>
+                <div>
+                  <span className={`mr-2 px-2 py-1 rounded text-xs ${
+                    task.impact === 'high' ? 'bg-red-500 text-white' :
+                    task.impact === 'medium' ? 'bg-yellow-500 text-black' :
+                    'bg-green-500 text-white'
+                  }`}>
+                    {task.impact}
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => dispatch(removeTask(task.id))}>Complete</Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 };
