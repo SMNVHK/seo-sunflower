@@ -17,10 +17,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <a href="#main-content" className="sr-only focus:not-sr-only">
+        Skip to content
+      </a>
       <Header toggleSidebar={toggleSidebar} />
       <div className="flex flex-1">
         <Sidebar isOpen={sidebarOpen} closeSidebar={() => setSidebarOpen(false)} />
-        <main className="flex-1 p-4">
+        <main id="main-content" className="flex-1 p-4">
           <Breadcrumbs />
           {children}
         </main>

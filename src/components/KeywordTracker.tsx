@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis } from 'recharts';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -149,14 +150,20 @@ const KeywordTracker: React.FC = () => {
               <option value="volume">Search Volume</option>
             </Select>
           </div>
-          <List
-            height={400}
-            itemCount={filteredAndSortedKeywords.length}
-            itemSize={50}
-            width="100%"
-          >
-            {KeywordRow}
-          </List>
+          <div style={{ height: 400 }}>
+            <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  height={height}
+                  itemCount={filteredAndSortedKeywords.length}
+                  itemSize={50}
+                  width={width}
+                >
+                  {KeywordRow}
+                </List>
+              )}
+            </AutoSizer>
+          </div>
         </CardContent>
       </Card>
       
