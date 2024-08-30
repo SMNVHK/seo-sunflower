@@ -8,7 +8,7 @@ import KeywordTracker from '../components/KeywordTracker';
 import ContentOptimizer from '../components/ContentOptimizer';
 import CompetitorAnalysis from '../components/CompetitorAnalysis';
 import AIChat from '../components/AIChat';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 const placeholderData = {
   organicTraffic: { value: 10000, change: 5 },
