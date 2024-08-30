@@ -8,8 +8,8 @@ const placeholderAIService = (message) => {
   const responses = {
     'keyword research': 'To conduct effective keyword research, start by brainstorming topics relevant to your business. Then, use tools like Google Keyword Planner or SEMrush to find related keywords and analyze their search volume and competition.',
     'backlinks': 'Building high-quality backlinks is crucial for SEO. Focus on creating valuable content that others want to link to, reach out to industry influencers, and consider guest posting on reputable sites in your niche.',
-    'content optimization': 'To optimize your content for SEO, ensure you're using relevant keywords naturally throughout your text. Also, focus on creating high-quality, informative content that provides value to your readers. Don't forget to optimize your meta tags and include internal links.',
-    'default': 'I'm sorry, I don't have specific information about that. Could you try rephrasing your question or asking about keyword research, backlinks, or content optimization?'
+    'content optimization': 'To optimize your content for SEO, ensure you\'re using relevant keywords naturally throughout your text. Also, focus on creating high-quality, informative content that provides value to your readers. Don\'t forget to optimize your meta tags and include internal links.',
+    'default': 'I\'m sorry, I don\'t have specific information about that. Could you try rephrasing your question or asking about keyword research, backlinks, or content optimization?'
   };
 
   const lowerMessage = message.toLowerCase();
