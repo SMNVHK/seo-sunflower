@@ -10,10 +10,11 @@ const Header: React.FC = () => {
         </Link>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/"><a>Dashboard</a></Link></li>
-            <li><Link href="/analyzer"><a>Site Analyzer</a></Link></li>
-            <li><Link href="/keywords"><a>Keyword Tracker</a></Link></li>
-            <li><Link href="/content"><a>Content Optimizer</a></Link></li>
+            <li><Link href="/"><a className="hover:text-gray-300">Dashboard</a></Link></li>
+            <li><Link href="/analyzer"><a className="hover:text-gray-300">Site Analyzer</a></Link></li>
+            <li><Link href="/keywords"><a className="hover:text-gray-300">Keyword Tracker</a></Link></li>
+            <li><Link href="/content"><a className="hover:text-gray-300">Content Optimizer</a></Link></li>
+            <li><Link href="/competitors"><a className="hover:text-gray-300">Competitor Analysis</a></Link></li>
           </ul>
         </nav>
       </div>
