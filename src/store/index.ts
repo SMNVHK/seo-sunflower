@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import createSagaMiddleware from 'redux-saga';
+import createSagaMiddleware from '@redux-saga/core';
 import { all } from 'redux-saga/effects';
 import seoReducer from './seoSlice';
 import siteAnalysisReducer from './siteAnalysisSlice';
