@@ -2,17 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis } from 'recharts';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { addKeyword, removeKeyword, setFilter, setSort } from '../store/keywordSlice';
+import { addKeyword, removeKeyword, setFilter, setSort, setSelectedKeyword } from '../store/keywordSlice';
 import { RootState } from '../store';
 
-// Mock API call - replace with actual API call when ready
+// Mock API calls - replace with actual API calls when ready
 const fetchKeywords = async () => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   return [
@@ -23,12 +23,36 @@ const fetchKeywords = async () => {
   ];
 };
 
+const fetchRelatedKeywords = async (keyword) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return [
+    { keyword: `${keyword} software`, searchVolume: 5000 },
+    { keyword: `best ${keyword}`, searchVolume: 3000 },
+    { keyword: `${keyword} tutorial`, searchVolume: 2000 },
+  ];
+};
+
+const fetchSerpPreview = async (keyword) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return {
+    title: `Best ${keyword} - Top Results`,
+    description: `Find the best ${keyword} with our comprehensive guide. Compare features, prices, and user reviews.`,
+    url: `https://example.com/best-${keyword.replace(' ', '-')}`,
+  };
+};
+
 const KeywordTracker: React.FC = () => {
   const dispatch = useDispatch();
-  const { keywords, filter, sort } = useSelector((state: RootState) => state.keywords);
+  const { keywords, filter, sort, selectedKeyword } = useSelector((state: RootState) => state.keywords);
   const [newKeyword, setNewKeyword] = useState('');
 
   const { data, isLoading, isError, error } = useQuery(['keywords'], fetchKeywords);
+  const { data: relatedKeywords } = useQuery(['relatedKeywords', selectedKeyword], () => fetchRelatedKeywords(selectedKeyword), {
+    enabled: !!selectedKeyword,
+  });
+  const { data: serpPreview } = useQuery(['serpPreview', selectedKeyword], () => fetchSerpPreview(selectedKeyword), {
+    enabled: !!selectedKeyword,
+  });
 
   const filteredAndSortedKeywords = useMemo(() => {
     let result = [...keywords];
@@ -64,11 +88,15 @@ const KeywordTracker: React.FC = () => {
     dispatch(setSort(event.target.value));
   };
 
+  const handleKeywordSelect = (keyword: string) => {
+    dispatch(setSelectedKeyword(keyword));
+  };
+
   const KeywordRow = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const keyword = filteredAndSortedKeywords[index];
     return (
       <div style={style} className="flex items-center justify-between p-2 border-b">
-        <span>{keyword.keyword}</span>
+        <span className="cursor-pointer" onClick={() => handleKeywordSelect(keyword.keyword)}>{keyword.keyword}</span>
         <span>Position: {keyword.position}</span>
         <span>Volume: {keyword.searchVolume}</span>
         <span>Trend: {keyword.trend}</span>
@@ -149,6 +177,65 @@ const KeywordTracker: React.FC = () => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Keyword Clustering</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart>
+              <CartesianGrid />
+              <XAxis type="number" dataKey="searchVolume" name="Search Volume" />
+              <YAxis type="number" dataKey="position" name="Position" />
+              <ZAxis type="number" dataKey="id" range={[50, 400]} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Scatter name="Keywords" data={filteredAndSortedKeywords} fill="#8884d8" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {selectedKeyword && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>SERP Preview for "{selectedKeyword}"</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {serpPreview ? (
+                <div className="space-y-2">
+                  <h3 className="text-blue-600 text-xl">{serpPreview.title}</h3>
+                  <p className="text-green-700">{serpPreview.url}</p>
+                  <p>{serpPreview.description}</p>
+                </div>
+              ) : (
+                <Skeleton className="h-24 w-full" />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Related Keywords for "{selectedKeyword}"</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {relatedKeywords ? (
+                <ul className="space-y-2">
+                  {relatedKeywords.map((related, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{related.keyword}</span>
+                      <span>Volume: {related.searchVolume}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Skeleton className="h-24 w-full" />
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

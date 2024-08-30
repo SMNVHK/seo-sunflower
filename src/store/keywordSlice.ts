@@ -12,12 +12,14 @@ interface KeywordState {
   keywords: Keyword[];
   filter: string;
   sort: string;
+  selectedKeyword: string | null;
 }
 
 const initialState: KeywordState = {
   keywords: [],
   filter: '',
   sort: '',
+  selectedKeyword: null,
 };
 
 const keywordSlice = createSlice({
@@ -39,8 +41,11 @@ const keywordSlice = createSlice({
     updateKeywords(state, action: PayloadAction<Keyword[]>) {
       state.keywords = action.payload;
     },
+    setSelectedKeyword(state, action: PayloadAction<string | null>) {
+      state.selectedKeyword = action.payload;
+    },
   },
 });
 
-export const { addKeyword, removeKeyword, setFilter, setSort, updateKeywords } = keywordSlice.actions;
+export const { addKeyword, removeKeyword, setFilter, setSort, updateKeywords, setSelectedKeyword } = keywordSlice.actions;
 export default keywordSlice.reducer;
