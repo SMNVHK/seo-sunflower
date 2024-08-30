@@ -8,14 +8,12 @@ import competitorReducer from './competitorSlice';
 import notificationReducer from './notificationSlice';
 import chatReducer from './chatSlice';
 import { notificationSaga } from './notificationSaga';
-import { chatSaga } from './chatSaga';
 
 const sagaMiddleware = createSagaMiddleware();
 
 function* rootSaga() {
   yield all([
     notificationSaga(),
-    chatSaga(),
   ]);
 }
 
