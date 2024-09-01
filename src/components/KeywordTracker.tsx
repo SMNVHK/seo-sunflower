@@ -33,7 +33,7 @@ const fetchSerpPreview = async (keyword: string) => {
   return response.data;
 };
 
-const addKeyword = async (keyword: string) => {
+const addKeywordAPI = async (keyword: string) => {
   const response = await axios.post(`${API_BASE_URL}/keywords`, { keyword });
   return response.data;
 };
@@ -80,7 +80,7 @@ const KeywordTracker: React.FC = () => {
   const handleAddKeyword = async () => {
     if (newKeyword) {
       try {
-        const newKeywordData = await addKeyword(newKeyword);
+        const newKeywordData = await addKeywordAPI(newKeyword);
         dispatch(addKeyword(newKeywordData));
         setNewKeyword('');
       } catch (error) {
