@@ -38,7 +38,7 @@ const addKeywordAPI = async (keyword: string) => {
   return response.data;
 };
 
-const removeKeyword = async (id: number) => {
+const removeKeywordAPI = async (id: number) => {
   await axios.delete(`${API_BASE_URL}/keywords/${id}`);
 };
 
@@ -92,7 +92,7 @@ const KeywordTracker: React.FC = () => {
 
   const handleRemoveKeyword = async (id: number) => {
     try {
-      await removeKeyword(id);
+      await removeKeywordAPI(id);
       dispatch(removeKeyword(id));
     } catch (error) {
       console.error('Failed to remove keyword:', error);
