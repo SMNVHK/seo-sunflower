@@ -14,32 +14,32 @@ import { addKeyword, removeKeyword, setFilter, setSort, setSelectedKeyword } fro
 import { RootState } from '../store';
 
 // Mock API calls - replace with actual API calls when ready
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
+
 const fetchKeywords = async () => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return [
-    { id: 1, keyword: 'SEO tools', position: 5, searchVolume: 10000, trend: 'improving' },
-    { id: 2, keyword: 'Keyword research', position: 8, searchVolume: 8000, trend: 'stable' },
-    { id: 3, keyword: 'Backlink analysis', position: 12, searchVolume: 5000, trend: 'declining' },
-    // ... more keywords
-  ];
+  const response = await axios.get(`${API_BASE_URL}/keywords`);
+  return response.data;
 };
 
-const fetchRelatedKeywords = async (keyword) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return [
-    { keyword: `${keyword} software`, searchVolume: 5000 },
-    { keyword: `best ${keyword}`, searchVolume: 3000 },
-    { keyword: `${keyword} tutorial`, searchVolume: 2000 },
-  ];
+const fetchRelatedKeywords = async (keyword: string) => {
+  const response = await axios.get(`${API_BASE_URL}/keywords/related`, { params: { keyword } });
+  return response.data;
 };
 
-const fetchSerpPreview = async (keyword) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return {
-    title: `Best ${keyword} - Top Results`,
-    description: `Find the best ${keyword} with our comprehensive guide. Compare features, prices, and user reviews.`,
-    url: `https://example.com/best-${keyword.replace(' ', '-')}`,
-  };
+const fetchSerpPreview = async (keyword: string) => {
+  const response = await axios.get(`${API_BASE_URL}/serp-preview`, { params: { keyword } });
+  return response.data;
+};
+
+const addKeyword = async (keyword: string) => {
+  const response = await axios.post(`${API_BASE_URL}/keywords`, { keyword });
+  return response.data;
+};
+
+const removeKeyword = async (id: number) => {
+  await axios.delete(`${API_BASE_URL}/keywords/${id}`);
 };
 
 const KeywordTracker: React.FC = () => {
@@ -77,15 +77,27 @@ const KeywordTracker: React.FC = () => {
     return result;
   }, [keywords, filter, sort]);
 
-  const handleAddKeyword = () => {
+  const handleAddKeyword = async () => {
     if (newKeyword) {
-      dispatch(addKeyword({ id: Date.now(), keyword: newKeyword, position: 0, searchVolume: 0, trend: 'new' }));
-      setNewKeyword('');
+      try {
+        const newKeywordData = await addKeyword(newKeyword);
+        dispatch(addKeyword(newKeywordData));
+        setNewKeyword('');
+      } catch (error) {
+        console.error('Failed to add keyword:', error);
+        // Handle error (e.g., show error message to user)
+      }
     }
   };
 
-  const handleRemoveKeyword = (id: number) => {
-    dispatch(removeKeyword(id));
+  const handleRemoveKeyword = async (id: number) => {
+    try {
+      await removeKeyword(id);
+      dispatch(removeKeyword(id));
+    } catch (error) {
+      console.error('Failed to remove keyword:', error);
+      // Handle error (e.g., show error message to user)
+    }
   };
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
